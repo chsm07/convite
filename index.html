@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Misterioso</title>
+    <style>
+        :root {
+            --cor-fundo: #fdf2f8; 
+            --cor-primaria: #8e44ad; 
+            --cor-azul: #a2d2ff; 
+            --cor-verde: #86efac; 
+            --cor-erro: #ff7675;
+            --cor-texto: #4a4a4a;
+        }
+
+        body {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--cor-fundo);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 35px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 380px;
+            width: 90%;
+            position: relative;
+            z-index: 5;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            color: var(--cor-primaria);
+            margin-bottom: 25px;
+        }
+
+        .btn-base {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .btn-oi { background-color: var(--cor-azul); color: white; }
+        .btn-nadave { background-color: #f1f2f6; color: #747d8c; }
+        .btn-sim { background-color: var(--cor-verde); color: #1e3799; }
+        
+        #btn-fujao { 
+            background-color: var(--cor-erro); 
+            color: white; 
+            position: fixed; /* Mudado para fixed para evitar sumiço em rolagens */
+            z-index: 999;
+            display: none; 
+            transition: left 0.1s ease, top 0.1s ease;
+        }
+
+        .hidden { display: none !important; }
+
+        .area-botoes {
+            display: block;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PÁGINA 1: INÍCIO -->
+    <div id="tela1" class="container">
+        <h1>oi ou nada vê?</h1>
+        <div class="area-botoes">
+            <button class="btn-base btn-oi" onclick="irParaTela2()">oi kkkkk</button>
+            <button class="btn-base btn-nadave" onclick="alert('opção errada, tente novamente')">nada vê</button>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: O CONVITE -->
+    <div id="tela2" class="container hidden">
+        <h1>Corridinha valendo açaí amanhã na praia? 🏃‍♀️🍧</h1>
+        <div class="area-botoes">
+            <button id="btn-fixo" class="btn-base btn-sim" onclick="finalizar()">SIM!</button>
+            <button id="btn-fujao" class="btn-base" onmouseover="fuga()">NÃO</button>
+        </div>
+    </div>
+
+    <script>
+        const FORMSPREE_ID = "mkoyqrja"; 
+
+        function irParaTela2() {
+            document.getElementById('tela1').classList.add('hidden');
+            document.getElementById('tela2').classList.remove('hidden');
+            
+            const fujao = document.getElementById("btn-fujao");
+            fujao.style.display = "inline-block";
+            
+            setTimeout(posicionarBotaoInicial, 50);
+        }
+
+        function posicionarBotaoInicial() {
+            const fujao = document.getElementById("btn-fujao");
+            const fixo = document.getElementById("btn-fixo");
+            const rectFixo = fixo.getBoundingClientRect();
+
+            fujao.style.left = (rectFixo.right + 20) + "px";
+            fujao.style.top = rectFixo.top + "px";
+        }
+
+        async function finalizar() {
+            let email = prompt("Sabia que você escolheria essa! \nDigite seu e-mail para combinarmos os detalhes:");
+            
+            if (email) {
+                fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        email: email, 
+                        mensagem: "Ela aceitou o convite do açaí!",
+                        site: "Site Misterioso"
+                    })
+                });
+                alert("Perfeito! Já recebi aqui, em breve te chamo! 😉");
+            }
+        }
+
+        function fuga() {
+            const fujao = document.getElementById("btn-fujao");
+            const fixo = document.getElementById("btn-fixo");
+            const rectFixo = fixo.getBoundingClientRect();
+
+            let x, y, colisao = true;
+            const margemTela = 20; // Impede que o botão encoste na borda da tela
+
+            while (colisao) {
+                // Sorteia nova posição respeitando as bordas da tela
+                x = Math.random() * (window.innerWidth - fujao.offsetWidth - (margemTela * 2)) + margemTela;
+                y = Math.random() * (window.innerHeight - fujao.offsetHeight - (margemTela * 2)) + margemTela;
+
+                // Margem de segurança para não cair em cima do botão SIM
+                const m = 120;
+                const foraX = (x + fujao.offsetWidth < rectFixo.left - m) || (x > rectFixo.right + m);
+                const foraY = (y + fujao.offsetHeight < rectFixo.top - m) || (y > rectFixo.bottom + m);
+
+                if (foraX || foraY) colisao = false;
+            }
+
+            fujao.style.left = x + "px";
+            fujao.style.top = y + "px";
+        }
+
+        window.onresize = () => {
+            if (!document.getElementById('tela2').classList.contains('hidden')) {
+                posicionarBotaoInicial();
+            }
+        };
+    </script>
+</body>
+</html>
